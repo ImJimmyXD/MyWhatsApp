@@ -1,4 +1,4 @@
-package imjimmyxd.simi.mywhatsapp;
+package imjimmyxd.simi.mywhatsapp.utils;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -8,14 +8,34 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.Objects;
+
+import imjimmyxd.simi.mywhatsapp.chat.ChatListAdapter;
+import imjimmyxd.simi.mywhatsapp.chat.ChatObject;
 
 public class HomeActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     Button logout, findUser;
     ImageView menu;
+    private RecyclerView.Adapter mChatListAdapter;
+    private RecyclerView mChatList;
+    private RecyclerView.LayoutManager mChatListLayoutManager;
+
+    ArrayList<ChatObject> chatList = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,11 +53,48 @@ public class HomeActivity extends AppCompatActivity {
         menu.setOnClickListener(v -> Toast.makeText(HomeActivity.this, "Menu Pressed!", Toast.LENGTH_SHORT).show());
 
 
+//        chatList.add(new ChatObject("test"));
+
         findUser = findViewById(R.id.find);
         findUser.setOnClickListener(v -> {
             startActivity(new Intent(HomeActivity.this, FindUserActivity.class));
         });
         getPermissions();
+        initializeRecyclerView();
+        getUserChatList();
+    }
+
+    private void getUserChatList() {
+        DatabaseReference mUserChatDB = FirebaseDatabase.getInstance().getReference().child("user").child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid())).child("chat");
+        mUserChatDB.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+//                        ChatObject mChat = new ChatObject(childSnapshot.getKey());
+                        ChatObject mChat = new ChatObject(Objects.requireNonNull(childSnapshot.getValue()).toString());
+                        chatList.add(mChat);
+//                        mChatListAdapter.notifyItemChanged(chatList.size());
+                        mChatListAdapter.notifyDataSetChanged();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void initializeRecyclerView() {
+        RecyclerView mChatList = findViewById(R.id.chatList);
+        mChatList.setNestedScrollingEnabled(false);
+        mChatList.setHasFixedSize(false);
+        RecyclerView.LayoutManager mChatListLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
+        mChatList.setLayoutManager(mChatListLayoutManager);
+        mChatListAdapter = new ChatListAdapter(chatList);
+        mChatList.setAdapter(mChatListAdapter);
     }
 
     private void getPermissions() {

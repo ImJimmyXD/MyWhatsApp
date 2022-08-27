@@ -1,9 +1,10 @@
-package imjimmyxd.simi.mywhatsapp;
+package imjimmyxd.simi.mywhatsapp.user;
 
 public class UserObject {
-    private String name, phone;
+    private String name, phone, uid;
 
-    public UserObject(String name, String phone) {
+    public UserObject(String uid, String name, String phone) {
+        this.uid = uid;
         this.name = name;
         this.phone = phone;
     }
@@ -18,5 +19,9 @@ public class UserObject {
 
     public String getPhone() {
         return phone;
+    }
+
+    public String getUid() {
+        return uid;
     }
 }

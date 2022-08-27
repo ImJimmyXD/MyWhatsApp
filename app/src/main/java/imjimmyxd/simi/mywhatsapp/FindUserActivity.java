@@ -21,11 +21,13 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import imjimmyxd.simi.mywhatsapp.user.UserListAdapter;
+import imjimmyxd.simi.mywhatsapp.user.UserObject;
+import imjimmyxd.simi.mywhatsapp.utils.CountryToPhonePrefix;
+
 public class FindUserActivity extends AppCompatActivity {
 
-    private RecyclerView mUserList;
     private RecyclerView.Adapter mUserListAdapter;
-    private RecyclerView.LayoutManager mUserListLayoutManager;
 
     ArrayList<UserObject> userList, contactList;
 
@@ -54,14 +56,11 @@ public class FindUserActivity extends AppCompatActivity {
 
             if (!String.valueOf(phone.charAt(0)).equals("+")) phone = ISOPrefix + phone;
 
-
-            UserObject mContacts = new UserObject(name, phone);
+            UserObject mContacts = new UserObject("", name, phone);
             boolean found = contactList.stream().anyMatch(p -> p.getName().equals(mContacts.getName()));
             if (!found) {
                 contactList.add(mContacts);
-//                mUserListAdapter.notifyDataSetChanged();
             }
-
             getUserDetails(mContacts);
         }
     }
@@ -81,12 +80,10 @@ public class FindUserActivity extends AppCompatActivity {
                         if (childSnapshot.child("name").getValue() != null) {
                             name = Objects.requireNonNull(childSnapshot.child("name").getValue()).toString();
                         }
-                        String finalName = name;
-                        UserObject mUser = new UserObject(finalName, phone);
+                        UserObject mUser = new UserObject(childSnapshot.getKey(), name, phone);
                         if (name.equals(phone)) {
                             for (UserObject p : contactList) {
                                 if (p.getPhone().equals(mUser.getName())) {
-//                                finalName = p.getName();
                                     mUser.setName(p.getName());
                                     break;
                                 }
@@ -111,10 +108,10 @@ public class FindUserActivity extends AppCompatActivity {
     private String getCountryISO() {
         String iso = null;
 
-        TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(getApplicationContext().TELEPHONY_SERVICE);
+        TelephonyManager manager = (TelephonyManager) getApplicationContext().getSystemService(TELEPHONY_SERVICE);
         if (manager.getNetworkCountryIso() != null) {
-            if (!manager.getNetworkCountryIso().toString().equals("")) {
-                iso = manager.getNetworkCountryIso().toString();
+            if (!manager.getNetworkCountryIso().equals("")) {
+                iso = manager.getNetworkCountryIso();
             }
         }
 
@@ -123,10 +120,10 @@ public class FindUserActivity extends AppCompatActivity {
     }
 
     private void initializeRecyclerView() {
-        mUserList = findViewById(R.id.userList);
+        RecyclerView mUserList = findViewById(R.id.userList);
         mUserList.setNestedScrollingEnabled(false);
         mUserList.setHasFixedSize(false);
-        mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
+        RecyclerView.LayoutManager mUserListLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
         mUserList.setLayoutManager(mUserListLayoutManager);
         mUserListAdapter = new UserListAdapter(userList);
         mUserList.setAdapter(mUserListAdapter);
