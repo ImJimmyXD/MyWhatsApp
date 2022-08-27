@@ -1,25 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomeActivity"
-    android:layout_margin="10dp">
-    <TextView
-        android:id="@+id/welcome_text"
+    android:orientation="vertical"
+    android:paddingLeft="15sp"
+    android:paddingTop="15sp"
+    android:paddingRight="15sp"
+    android:paddingBottom="15sp"
+    tools:context=".HomeActivity">
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:text="@string/welcome_to_the_dashboard"
-        android:gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        />
-    <Button
-        android:id="@+id/logout"
+        android:orientation="horizontal"
+        android:paddingTop="15sp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textSize="20sp">
+            <!--            <requestFocus />-->
+        </TextView>
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autofillHints="lol"
+            android:background="@null"
+            android:drawableEnd="@drawable/magnifying_glass_w_trim"
+            android:gravity="center_horizontal"
+            tools:ignore="LabelFor" />
+
+        <ImageView
+            android:id="@+id/menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5sp"
+            android:paddingEnd="5sp"
+            android:src="@drawable/menu_dots_w_trim" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/welcome_text"
-        android:text="@string/logout"
-        />
-</RelativeLayout>
+        android:layout_height="wrap_content">
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="15sp">
+
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/logout" />
+
+        <Button
+            android:id="@+id/find"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Find user"/>
+    </LinearLayout>
+</LinearLayout><!--            android:layout_below="@id/app_name"-->
+    <!--    android:layout_margin="10dp"-->
+    <!--    android:gravity="center"-->
