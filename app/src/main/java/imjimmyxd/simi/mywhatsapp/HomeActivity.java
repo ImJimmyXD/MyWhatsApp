@@ -62,6 +62,7 @@ public class HomeActivity extends AppCompatActivity {
         getPermissions();
         initializeRecyclerView();
         getUserChatList();
+        System.out.println("debug");
     }
 
     private void getUserChatList() {
@@ -72,10 +73,17 @@ public class HomeActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot childSnapshot : snapshot.getChildren()) {
 //                        ChatObject mChat = new ChatObject(childSnapshot.getKey());
-                        ChatObject mChat = new ChatObject(Objects.requireNonNull(childSnapshot.getValue()).toString());
+                        ChatObject mChat = new ChatObject(Objects.requireNonNull(childSnapshot.getKey()).toString());
+                        boolean exists = false;
+                        for (ChatObject mChatIterator : chatList) {
+                            if (mChatIterator.getChatId().equals(mChat.getChatId()))
+                                exists = true;
+                        }
+                        if (exists)
+                            continue;
                         chatList.add(mChat);
-//                        mChatListAdapter.notifyItemChanged(chatList.size());
-                        mChatListAdapter.notifyDataSetChanged();
+                        mChatListAdapter.notifyItemChanged(chatList.size());
+//                        mChatListAdapter.notifyDataSetChanged();
                     }
                 }
             }
