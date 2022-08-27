@@ -1,16 +1,15 @@
 package imjimmyxd.simi.mywhatsapp;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.provider.ContactsContract;
+import android.telephony.TelephonyManager;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.annotation.SuppressLint;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
-import android.telephony.TelephonyManager;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,7 +20,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class FindUserActivity extends AppCompatActivity {
 
@@ -35,8 +33,8 @@ public class FindUserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_user);
-        userList = new ArrayList<UserObject>();
-        contactList = new ArrayList<UserObject>();
+        userList = new ArrayList<>();
+        contactList = new ArrayList<>();
         initializeRecyclerView();
         getContactList();
     }
@@ -84,16 +82,20 @@ public class FindUserActivity extends AppCompatActivity {
                             name = Objects.requireNonNull(childSnapshot.child("name").getValue()).toString();
                         }
                         String finalName = name;
-                        for (UserObject p : contactList) {
-                            if (p.getPhone().equals(phone)) {
-                                finalName = p.getName();
-                                break;
+                        UserObject mUser = new UserObject(finalName, phone);
+                        if (name.equals(phone)) {
+                            for (UserObject p : contactList) {
+                                if (p.getPhone().equals(mUser.getName())) {
+//                                finalName = p.getName();
+                                    mUser.setName(p.getName());
+                                    break;
+                                }
                             }
                         }
-                        UserObject mUser = new UserObject(finalName, phone);
-                        contactList.stream().anyMatch(p -> p.getName().equals(mUser.getName()));
                         userList.add(mUser);
-                        mUserListAdapter.notifyDataSetChanged();
+//                        mUserListAdapter.notifyDataSetChanged();
+//                        mUserListAdapter.notifyItemRangeInserted(userList.size() - 1, userList.size());
+                        mUserListAdapter.notifyItemChanged(userList.size());
                         return;
                     }
                 }
