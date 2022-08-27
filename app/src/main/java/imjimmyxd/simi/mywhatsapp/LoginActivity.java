@@ -21,10 +21,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
     EditText phone, otp;
     Button buttonGenerate, buttonVerify;
     FirebaseAuth mAuth;
@@ -43,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         bar = findViewById(R.id.bar);
         buttonGenerate.setOnClickListener(v -> {
             if (TextUtils.isEmpty(phone.getText().toString())) {
-                Toast.makeText(MainActivity.this, "Enter Valid Phone No.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Enter Valid Phone No.", Toast.LENGTH_SHORT).show();
             } else {
                 String number = phone.getText().toString();
                 bar.setVisibility(View.VISIBLE);
@@ -52,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         });
         buttonVerify.setOnClickListener(v -> {
             if (TextUtils.isEmpty(otp.getText().toString())) {
-                Toast.makeText(MainActivity.this, "Wrong OTP Entered", Toast.LENGTH_SHORT).show();
+                Toast.makeText(LoginActivity.this, "Wrong OTP Entered", Toast.LENGTH_SHORT).show();
             } else
                 verifyCode(otp.getText().toString());
         });
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onVerificationFailed(@NonNull FirebaseException e) {
-            Toast.makeText(MainActivity.this, "Verification Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "Verification Failed", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -90,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                                @NonNull PhoneAuthProvider.ForceResendingToken token) {
             super.onCodeSent(s, token);
             verificationID = s;
-            Toast.makeText(MainActivity.this, "Code sent", Toast.LENGTH_SHORT).show();
+            Toast.makeText(LoginActivity.this, "Code sent", Toast.LENGTH_SHORT).show();
             buttonVerify.setEnabled(true);
             bar.setVisibility(View.INVISIBLE);
         }
@@ -106,8 +113,30 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener((OnCompleteListener<com.google.firebase.auth.AuthResult>) task -> {
                     if (task.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Login Successfully", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(MainActivity.this, HomeActivity.class));
+                        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                        if(user != null){
+                            final DatabaseReference mUserDB = FirebaseDatabase.getInstance().getReference().child("user").child(user.getUid());
+                            mUserDB.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if(!snapshot.exists()){
+                                        Map<String,Object> userMap = new HashMap<>();
+                                        userMap.put("phone",user.getPhoneNumber());
+                                        userMap.put("name",user.getPhoneNumber());
+                                        mUserDB.updateChildren(userMap);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                        }
+
+
+                        Toast.makeText(LoginActivity.this, "Login Successfully", Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                     }
 
                 });
@@ -118,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            startActivity(new Intent(MainActivity.this, HomeActivity.class));
+            startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             finish();
         }
     }
