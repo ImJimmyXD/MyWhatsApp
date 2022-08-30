@@ -90,18 +90,13 @@ public class FindUserActivity extends AppCompatActivity {
                             }
                         }
                         userList.add(mUser);
-//                        mUserListAdapter.notifyDataSetChanged();
-//                        mUserListAdapter.notifyItemRangeInserted(userList.size() - 1, userList.size());
                         mUserListAdapter.notifyItemChanged(userList.size());
                         return;
                     }
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
 

@@ -1,5 +1,7 @@
 package imjimmyxd.simi.mywhatsapp.chat;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +13,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import imjimmyxd.simi.mywhatsapp.ChatActivity;
 import imjimmyxd.simi.mywhatsapp.R;
 
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatListViewHolder> {
-    ArrayList<ChatObject> ChatList = new ArrayList<>();
+    ArrayList<ChatObject> chatList = new ArrayList<>();
 
-    public ChatListAdapter(ArrayList<ChatObject> ChatList) {
-        this.ChatList = ChatList;
+    public ChatListAdapter(ArrayList<ChatObject> chatList) {
+        this.chatList = chatList;
     }
 
     public ArrayList<ChatObject> getChatList() {
-        return ChatList;
+        return chatList;
     }
 
     @NonNull
@@ -36,17 +39,21 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChatListAdapter.ChatListViewHolder holder, int position) {
-        holder.mTitle.setText(ChatList.get(position).getChatId());
+    public void onBindViewHolder(@NonNull final ChatListAdapter.ChatListViewHolder holder, int position) {
+        holder.mTitle.setText(chatList.get(position).getChatId());
 
         holder.mLayout.setOnClickListener(v -> {
-
+            Intent intent = new Intent(v.getContext(), ChatActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putString("chatID", chatList.get(holder.getAdapterPosition()).getChatId());
+            intent.putExtras(bundle);
+            v.getContext().startActivity(intent);
         });
     }
 
     @Override
     public int getItemCount() {
-        return ChatList.size();
+        return chatList.size();
     }
 
 
