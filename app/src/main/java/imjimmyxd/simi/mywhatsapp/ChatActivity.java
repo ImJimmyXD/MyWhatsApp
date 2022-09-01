@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,14 +23,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import imjimmyxd.simi.mywhatsapp.chat.MediaAdapter;
 import imjimmyxd.simi.mywhatsapp.chat.MessageAdapter;
 import imjimmyxd.simi.mywhatsapp.chat.MessageObject;
 
 public class ChatActivity extends AppCompatActivity {
 
-    private RecyclerView.Adapter mChatAdapter;
-    private RecyclerView mChat;
-    private RecyclerView.LayoutManager mChatLayoutManager;
+    private RecyclerView.Adapter mChatAdapter, mMediaAdapter;
+    private RecyclerView mChat, mMedia;
+    private RecyclerView.LayoutManager mChatLayoutManager, mMediaLayoutManager;
 
     //    ArrayList<ChatObject> messageList = new ArrayList<>();
     ArrayList<MessageObject> messageList;
@@ -47,12 +49,54 @@ public class ChatActivity extends AppCompatActivity {
         mChatDB = FirebaseDatabase.getInstance().getReference().child("chat").child(chatID);
 
         Button mSend = findViewById(R.id.send);
+        Button mAddMedia = findViewById(R.id.addMedia);
         mSend.setOnClickListener(view -> {
             sendMessage();
         });
+        mAddMedia.setOnClickListener(view ->{
+            openGallery();
+        });
 
-        initializeRecyclerView();
+        initializeMessage();
+        initializeMedia();
         getChatMessages();
+    }
+    int PICK_IMAGE_INTENT = 1;
+    ArrayList<String> mediaUriList = new ArrayList<>();
+    private void initializeMedia() {
+//        messageList = new ArrayList<>();
+        mMedia = findViewById(R.id.mediaList);
+        mMedia.setNestedScrollingEnabled(false);
+        mMedia.setHasFixedSize(false);
+        mMediaLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.HORIZONTAL, false);
+        mMedia.setLayoutManager(mMediaLayoutManager);
+        mMediaAdapter = new MediaAdapter(getApplicationContext(),mediaUriList);
+        mMedia.setAdapter(mMediaAdapter);
+    }
+    private void openGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent,"Select Picture(s)"), PICK_IMAGE_INTENT);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK){
+            if(requestCode == PICK_IMAGE_INTENT){
+                if(Objects.requireNonNull(data).getClipData() == null){
+                    mediaUriList.add(Objects.requireNonNull(data).getData().toString());
+                }else{
+                    for(int i = 0; i < data.getClipData().getItemCount(); i++){
+                        mediaUriList.add(data.getClipData().getItemAt(i).getUri().toString());
+                    }
+                }
+
+                mMediaAdapter.notifyDataSetChanged();
+            }
+        }
     }
 
     private void getChatMessages() {
@@ -120,12 +164,12 @@ public class ChatActivity extends AppCompatActivity {
         mMessage.setText(null);
     }
 
-    private void initializeRecyclerView() {
+    private void initializeMessage() {
         messageList = new ArrayList<>();
         mChat = findViewById(R.id.messageList);
         mChat.setNestedScrollingEnabled(false);
         mChat.setHasFixedSize(false);
-        RecyclerView.LayoutManager mChatLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
+        mChatLayoutManager = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL, false);
         mChat.setLayoutManager(mChatLayoutManager);
         mChatAdapter = new MessageAdapter(messageList);
         mChat.setAdapter(mChatAdapter);
