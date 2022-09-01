@@ -106,13 +106,19 @@ public class ChatActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String text = "",
                             creatorID = "";
+                    ArrayList<String> mediaUrlList = new ArrayList<>();
                     if (snapshot.child("text").getValue() != null) {
                         text = Objects.requireNonNull(snapshot.child("text").getValue()).toString();
                     }
                     if (snapshot.child("creator").getValue() != null) {
                         creatorID = Objects.requireNonNull(snapshot.child("creator").getValue()).toString();
                     }
-                    MessageObject mMessage = new MessageObject(snapshot.getKey(), creatorID, text);
+                    if (snapshot.child("media").getChildrenCount() > 0) {
+                        for(DataSnapshot mediaSnapshot : snapshot.child("media").getChildren()) {
+                            mediaUrlList.add(Objects.requireNonNull(mediaSnapshot.getValue()).toString());
+                        }
+                    }
+                    MessageObject mMessage = new MessageObject(snapshot.getKey(), creatorID, text,mediaUrlList);
                     messageList.add(mMessage);
                     //TODO solve error from try-catch block
                     // W/System.err: java.lang.NullPointerException: Attempt to invoke virtual method 'void androidx.recyclerview.widget.RecyclerView$LayoutManager.scrollToPosition(int)' on a null object reference
@@ -190,7 +196,6 @@ public class ChatActivity extends AppCompatActivity {
     private void updateDatabaseWithNewMessages(DatabaseReference newMessageDB, Map newMessageMap) {
         newMessageDB.updateChildren(newMessageMap);
         mMediaAdapter.notifyDataSetChanged();
-//        mMediaAdapter.notifyItemInserted(mediaUriList.size());
         mMessage.setText(null);
         mediaUriList.clear();
         mediaIdList.clear();
